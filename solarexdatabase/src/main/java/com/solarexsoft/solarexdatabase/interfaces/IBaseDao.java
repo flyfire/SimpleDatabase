@@ -15,6 +15,7 @@ public interface IBaseDao<T> {
     Long insert(T entity);
     int update(T entity, T where);
     List<T> query(T where);
-    List<T> query(T where, String orderBy, Integer startIndex, Integer limit);
+    List<T> query(T where, String[] columns, String orderBy, Integer startIndex, Integer limit);
     int delete(T where);
+    void close();
 }

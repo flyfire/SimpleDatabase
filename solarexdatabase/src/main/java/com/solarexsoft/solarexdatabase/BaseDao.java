@@ -26,7 +26,7 @@ import java.util.Set;
  */
 
 public abstract class BaseDao<T> implements IBaseDao<T> {
-    private SQLiteDatabase mSQLiteDatabase;
+    protected SQLiteDatabase mSQLiteDatabase;
     private volatile boolean isInit = false;
     private String mTableName;
     private Class<T> mEntityClass;
@@ -139,12 +139,63 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
 
     @Override
     public List<T> query(T where) {
-        return null;
+        return query(where, null, null, null, null);
     }
 
     @Override
-    public List<T> query(T where, String orderBy, Integer startIndex, Integer limit) {
-        return null;
+    public List<T> query(T where, String[] columns, String orderBy, Integer startIndex, Integer
+            limit) {
+        Map<String, String> whereEntities = getEntityValues(where);
+        Condition whereCondition = new Condition(whereEntities);
+        String limitString = null;
+        if (startIndex != null && limit != null) {
+            limitString = startIndex + ", " + limit;
+        }
+        Cursor cursor = this.mSQLiteDatabase.query(this.mTableName, columns, whereCondition
+                        .getWhereClause(),
+                whereCondition.getWhereArgs(), null, null, orderBy, limitString);
+        ArrayList<T> lists = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            try {
+                T item = (T) where.getClass().newInstance();
+                boolean notNull = false;
+                Set<Map.Entry<String, Field>> entrySet = this.mCacheMap.entrySet();
+                for (Map.Entry<String, Field> entry : entrySet) {
+                    String columnName = entry.getKey();
+                    int columnIndex = cursor.getColumnIndex(columnName);
+                    Field columnField = entry.getValue();
+                    if (columnIndex != -1) {
+                        Class columnClz = columnField.getType();
+                        if (columnClz == String.class) {
+                            columnField.set(item, cursor.getString(columnIndex));
+                        } else if (columnClz == Float.class) {
+                            columnField.set(item, cursor.getFloat(columnIndex));
+                        } else if (columnClz == Short.class) {
+                            columnField.set(item, cursor.getShort(columnIndex));
+                        } else if (columnClz == Long.class) {
+                            columnField.set(item, cursor.getLong(columnIndex));
+                        } else if (columnClz == byte[].class) {
+                            columnField.set(item, cursor.getBlob(columnIndex));
+                        } else if (columnClz == Integer.class) {
+                            columnField.set(item, cursor.getInt(columnIndex));
+                        } else if (columnClz == Double.class) {
+                            columnField.set(item, cursor.getDouble(columnIndex));
+                        }
+                        notNull = true;
+                    }
+                }
+                if (notNull) {
+                    lists.add(item);
+                }
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        IOUtils.close(cursor);
+        return lists;
     }
 
     @Override
@@ -157,7 +208,14 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
         return rowsAffected;
     }
 
+    @Override
+    public void close() {
+        this.mSQLiteDatabase.close();
+    }
+
     public abstract String createTable();
+
+    public abstract void rawQuery(String sql);
 
     public static class Condition {
         private String whereClause;

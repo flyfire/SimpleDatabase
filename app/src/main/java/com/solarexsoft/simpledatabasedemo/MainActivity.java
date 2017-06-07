@@ -7,9 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import com.solarexsoft.simpledatabasedemo.dbtest.User;
 import com.solarexsoft.simpledatabasedemo.dbtest.UserDao;
 import com.solarexsoft.solarexdatabase.DaoManager;
+import com.solarexsoft.solarexdatabase.L;
 import com.solarexsoft.solarexdatabase.interfaces.IBaseDao;
 
 import java.io.File;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     IBaseDao<User> mUserDao;
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
         User entity = new User("David", 100);
         mUserDao.update(entity, where);
         mUserDao.insert(new User("Solarex", 18));
-        mUserDao.delete(entity);
+        //mUserDao.delete(entity);
+        List<User> users = mUserDao.query(where);
+        L.d(users.toString());
     }
 }

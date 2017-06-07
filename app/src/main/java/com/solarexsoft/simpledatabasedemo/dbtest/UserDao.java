@@ -19,4 +19,8 @@ public class UserDao<User> extends BaseDao<User> {
     public String createTable() {
         return "create table if not exists tb_user(user_name varchar(20), user_age int)";
     }
+
+    @Override
+    public void rawQuery(String sql) {
+    }
 }

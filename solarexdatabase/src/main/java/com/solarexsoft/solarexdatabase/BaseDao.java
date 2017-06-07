@@ -1,5 +1,6 @@
 package com.solarexsoft.solarexdatabase;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
@@ -12,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <pre>
@@ -34,6 +36,7 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
         if (!isInit) {
             this.mSQLiteDatabase = sqLiteDatabase;
             this.mTableName = beanClz.getAnnotation(DBTable.class).value();
+            L.d("mTableName = " + mTableName);
             this.mEntityClass = beanClz;
             if (!sqLiteDatabase.isOpen()) {
                 return false;
@@ -59,12 +62,14 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
             beanClzField.setAccessible(true);
         }
         for (String tableColumnName : tableColumnNames) {
+            L.d("tableColumnName = " + tableColumnName);
             Field tableColumnField = null;
             for (Field beanClzField : beanClzFields) {
                 String fieldName = beanClzField.getAnnotation(DBColumn.class).value();
                 if (fieldName == null) {
                     fieldName = beanClzField.getName();
                 }
+                L.d("fieldName = " + fieldName);
                 if (tableColumnName.equals(fieldName)) {
                     tableColumnField = beanClzField;
                     break;
@@ -80,7 +85,43 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
 
     @Override
     public Long insert(T entity) {
-        return null;
+        Map<String, String> map = getEntityValues(entity);
+        ContentValues contentValues = getContentValues(map);
+        Long result = this.mSQLiteDatabase.insert(this.mTableName, null, contentValues);
+        return result;
+    }
+
+    private Map<String, String> getEntityValues(T entity) {
+        HashMap<String, String> result = new HashMap<>();
+        Set<Map.Entry<String, Field>> mapEntities = this.mCacheMap.entrySet();
+        for (Map.Entry<String, Field> mapEntity : mapEntities) {
+            String cacheKey = mapEntity.getKey();
+            Field field = mapEntity.getValue();
+            Object value = null;
+            try {
+                value = field.get(entity);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            if (value == null) {
+                continue;
+            }
+            result.put(cacheKey, value.toString());
+        }
+        return result;
+    }
+
+    private ContentValues getContentValues(Map<String, String> map) {
+        ContentValues contentValues = new ContentValues();
+        Set<Map.Entry<String, String>> mapEntities = map.entrySet();
+        for (Map.Entry<String, String> mapEntity : mapEntities) {
+            String columnName = mapEntity.getKey();
+            String columnValue = mapEntity.getValue();
+            if (columnValue != null) {
+                contentValues.put(columnName, columnValue);
+            }
+        }
+        return contentValues;
     }
 
     @Override
@@ -103,5 +144,5 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
         return 0;
     }
 
-    abstract String createTable();
+    public abstract String createTable();
 }

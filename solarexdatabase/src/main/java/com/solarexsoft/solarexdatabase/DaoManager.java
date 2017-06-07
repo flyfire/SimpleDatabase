@@ -3,7 +3,7 @@ package com.solarexsoft.solarexdatabase;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 
-import java.lang.annotation.Target;
+import java.io.File;
 
 /**
  * <pre>
@@ -37,6 +37,17 @@ public class DaoManager {
         return sInstance;
     }
 
+    public static DaoManager getInstance(File file) {
+        if (sInstance == null) {
+            synchronized (DaoManager.class) {
+                if (sInstance == null) {
+                    sInstance = new DaoManager(file.getAbsolutePath());
+                }
+            }
+        }
+        return sInstance;
+    }
+
     public synchronized <K extends BaseDao<V>, V> K getDao(Class<K> daoClz, Class<V> beanClz) {
         BaseDao baseDao = null;
         try {
@@ -45,6 +56,6 @@ public class DaoManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return (K)baseDao;
+        return (K) baseDao;
     }
 }

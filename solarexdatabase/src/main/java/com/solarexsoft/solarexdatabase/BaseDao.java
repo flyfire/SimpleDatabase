@@ -10,6 +10,7 @@ import com.solarexsoft.solarexdatabase.interfaces.DBTable;
 import com.solarexsoft.solarexdatabase.interfaces.IBaseDao;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,14 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
 
     @Override
     public int update(T entity, T where) {
-        return 0;
+        Map<String, String> mapEntities = getEntityValues(entity);
+        ContentValues contentValues = getContentValues(mapEntities);
+        Map<String, String> whereEntities = getEntityValues(where);
+        Condition condition = new Condition(whereEntities);
+        int rowsAffected = this.mSQLiteDatabase.update(this.mTableName, contentValues, condition
+                        .getWhereClause(),
+                condition.getWhereArgs());
+        return rowsAffected;
     }
 
     @Override
@@ -141,8 +149,41 @@ public abstract class BaseDao<T> implements IBaseDao<T> {
 
     @Override
     public int delete(T where) {
-        return 0;
+        Map<String, String> whereEntities = getEntityValues(where);
+        Condition whereCondition = new Condition(whereEntities);
+        int rowsAffected = this.mSQLiteDatabase.delete(this.mTableName, whereCondition
+                        .getWhereClause(),
+                whereCondition.getWhereArgs());
+        return rowsAffected;
     }
 
     public abstract String createTable();
+
+    public static class Condition {
+        private String whereClause;
+        private String[] whereArgs;
+
+        public Condition(Map<String, String> mapEntities) {
+            StringBuilder sb = new StringBuilder();
+            ArrayList<String> args = new ArrayList<>();
+            sb.append("1 = 1");
+            Set<Map.Entry<String, String>> entities = mapEntities.entrySet();
+            for (Map.Entry<String, String> entity : entities) {
+                sb.append(" and ").append(entity.getKey()).append(" = ?");
+                args.add(entity.getValue());
+            }
+            this.whereClause = sb.toString();
+            this.whereArgs = args.toArray(new String[args.size()]);
+            L.d("whereClause = " + whereClause);
+            L.d("whereArgs = " + whereArgs);
+        }
+
+        public String getWhereClause() {
+            return whereClause;
+        }
+
+        public String[] getWhereArgs() {
+            return whereArgs;
+        }
+    }
 }

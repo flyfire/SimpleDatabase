@@ -1,19 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     tools:context="com.solarexsoft.simpledatabasedemo.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+    <Button
+        android:id="@+id/solarex_insert"
+        style="@style/solarex_button"
+        android:layout_alignParentLeft="true"
+        android:onClick="sInsert"
+        android:text="S插入"/>
 
-</android.support.constraint.ConstraintLayout>
+    <Button
+        android:id="@+id/greendao_insert"
+        style="@style/solarex_button"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/solarex_insert"
+        android:onClick="gInsert"
+        android:text="G插入"/>
+    <Button
+        android:id="@+id/solarex_update"
+        style="@style/solarex_button"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/solarex_insert"
+        android:onClick="sUpdate"
+        android:text="S更新"/>
+
+    <Button
+        android:id="@+id/greendao_update"
+        style="@style/solarex_button"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/solarex_update"
+        android:layout_below="@+id/solarex_insert"
+        android:onClick="gUpdate"
+        android:text="G更新"/>
+    <Button
+        android:id="@+id/solarex_delete"
+        style="@style/solarex_button"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/solarex_update"
+        android:onClick="sDelete"
+        android:text="S删除"/>
+
+    <Button
+        android:id="@+id/greendao_delete"
+        style="@style/solarex_button"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/solarex_delete"
+        android:layout_below="@+id/solarex_update"
+        android:onClick="gDelete"
+        android:text="G删除"/>
+    <Button
+        android:id="@+id/solarex_query"
+        style="@style/solarex_button"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/solarex_delete"
+        android:onClick="sQuery"
+        android:text="S查询"/>
+
+    <Button
+        android:id="@+id/greendao_query"
+        style="@style/solarex_button"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/solarex_query"
+        android:layout_below="@+id/solarex_delete"
+        android:onClick="gQuery"
+        android:text="G查询"/>
+
+</RelativeLayout>

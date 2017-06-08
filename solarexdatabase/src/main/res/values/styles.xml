@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="solarex_button">
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_width">150dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#0000ff</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+</resources>

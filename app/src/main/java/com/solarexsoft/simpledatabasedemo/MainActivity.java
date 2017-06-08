@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         File file = new File(Environment.getExternalStorageDirectory(), "solarex.db");
         mUserDao = DaoManager.getInstance(file).getDao(UserDao.class, User.class);
-        //mUserDao.insert(new User("Solarex", 18));
+//        mUserDao.insert(new User("Solarex", 18));
 //        User where = new User();
 //        where.setName("Solarex");
 //        User entity = new User("David", 100);
